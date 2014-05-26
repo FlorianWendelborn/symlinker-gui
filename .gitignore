@@ -1,0 +1,7 @@
+*.dll
+*.exe
+*.pak
+lib/*
+css/*
+fonts/*
+credits.html

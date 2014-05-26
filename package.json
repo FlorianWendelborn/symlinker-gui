@@ -1,0 +1,30 @@
+{
+  "name": "symlinker-gui",
+  "version": "0.0.1",
+  "description": "node-webkit gui for symlinker",
+  "main": "index.html",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FlorianWendelborn/symlinker-gui"
+  },
+  "keywords": [
+    "symlinker"
+  ],
+  "author": "Florian Wendelborn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FlorianWendelborn/symlinker-gui/issues"
+  },
+  "homepage": "https://github.com/FlorianWendelborn/symlinker-gui",
+  "window": {
+    "icon": "icon.png",
+    "title": "symlinker",
+    "toolbar": false,
+    "height": 600,
+    "width": 800,
+    "resizable": true
+  },
+  "dependencies": {
+    "nedb": "~0.10.5"
+  }
+}
