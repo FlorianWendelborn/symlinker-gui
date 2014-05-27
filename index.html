@@ -15,6 +15,19 @@
 	<link rel="icon" href="./png/icon.png" type="image/png">
 </head>
 <body>
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="container-fluid">
+			<a class="navbar-brand" href="#">symlinker</a>
+
+			<ul class="nav navbar-nav">
+				<li ng-class="{active: currentPath == '/links'}"><a href="#/links"><i class="glyphicon glyphicon-link"></i> links <span class="badge">{{links.length}}</span></a></li>
+				<li ng-class="{active: currentPath == '/lists'}"><a href="#/lists"><i class="glyphicon glyphicon-list-alt"></i> lists <span class="badge">{{lists.length}}</span></a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li ng-class="{active: currentPath == '/settings'}"><a href="#/settings"><i class="glyphicon glyphicon-cog"></i> settings</a></li>
+			</ul>
+		</div>
+	</nav>
 	<main ng-view>something went wrong</main>
 </body>
 </html>

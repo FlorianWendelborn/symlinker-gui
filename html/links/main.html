@@ -1,0 +1,47 @@
+<div class="jumbotron" ng-show="!settings.linksDismissInformation">
+	<h1>Symlinker links</h1>
+	<p>allow you to link a file to another location.</p>
+	<p><button class="btn btn-success" ng-click="dismissInfo()">Okay, I got it.</button></p>
+</div>
+<table class="table">
+	<thead>
+		<tr>
+			<th>name</th>
+			<th>source</th>
+			<th>destination</th>
+			<th>functions</th>
+		</tr>
+	</thead>
+	<tr>
+		<td><input type="text" class="form-control" ng-model="newLink.name"></td>
+		<td><input type="text" class="form-control" ng-model="newLink.source"></td>
+		<td><input type="text" class="form-control" ng-model="newLink.destination"></td>
+		<td>
+			<div class="btn-group">
+				<button type="button" class="btn btn-info" ng-click="clear()"><i class="glyphicon glyphicon-repeat"></i></button>
+				<button type="button" class="btn btn-success" ng-click="add()"><i class="glyphicon glyphicon-ok"></i></button>
+			</div>
+		</td>
+	</tr>
+	<tr ng-repeat="link in links">
+		<td ng-show="editLink._id != link._id">{{link.name}}</td>
+		<td ng-show="editLink._id != link._id">{{link.source}}</td>
+		<td ng-show="editLink._id != link._id">{{link.destination}}</td>
+		<td ng-show="editLink._id != link._id">
+			<div class="btn-group">
+				<button type="button" class="btn btn-success" ng-click="run(link)"><i class="glyphicon glyphicon-play"></i></button>
+				<button type="button" class="btn btn-warning" ng-click="edit(link)"><i class="glyphicon glyphicon-pencil"></i></button>
+				<button type="button" class="btn btn-danger" ng-click="delete(link)"><i class="glyphicon glyphicon-trash"></i></button>
+			</div>
+		</td>
+		<td ng-show="editLink._id == link._id"><input type="text" class="form-control" ng-model="editLink.name"></td>
+		<td ng-show="editLink._id == link._id"><input type="text" class="form-control" ng-model="editLink.source"></td>
+		<td ng-show="editLink._id == link._id"><input type="text" class="form-control" ng-model="editLink.destination"></td>
+		<td ng-show="editLink._id == link._id">
+			<div class="btn-group">
+				<button type="button" class="btn btn-success" ng-click="update(link)"><i class="glyphicon glyphicon-ok"></i></button>
+				<button type="button" class="btn btn-warning" ng-click="edit(link)"><i class="glyphicon glyphicon-remove"></i></button>
+			</div>
+		</td>
+	</tr>
+</table>

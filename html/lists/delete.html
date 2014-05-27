@@ -1,0 +1,36 @@
+<div class="modal-header">
+	<h3 class="modal-title">Are you sure you want to delete this list?</h3>
+</div>
+<div class="modal-body">
+	<div class="panel panel-default">
+		<div class="panel-heading">general information</div>
+		<table class="table">
+			<thead>
+				<th>source</th>
+				<th>destination</th>
+			</thead>
+			<tr>
+				<td>{{list.source}}</td>
+				<td>{{list.destination}}</td>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<div class="panel panel-default">
+		<div class="panel-heading">linked files</div>
+		<table class="table">
+			<thead>
+				<th>file</th>
+				<th>optional name</th>
+			</thead>
+			<tr ng-repeat="file in list.files">
+				<td>{{file.path}}</td>
+				<td>{{file.name}}</td>
+			</tr>
+		</table>
+	</div>
+</div>
+<div class="modal-footer">
+	<button class="btn btn-warning" ng-click="cancel()"><i class="glyphicon glyphicon-remove"></i> cancel</button>
+	<button class="btn btn-danger" ng-click="ok()"><i class="glyphicon glyphicon-trash"></i> delete</button>
+</div>

@@ -1,0 +1,50 @@
+<div class="modal-header">
+	<h3 class="modal-title">Add new List</h3>
+</div>
+<div class="modal-body">
+	<div class="panel panel-default">
+		<div class="panel-heading">general information</div>
+		<table class="table">
+			<thead>
+				<th>name</th>
+				<th>source</th>
+				<th>destination</th>
+			</thead>
+			<tr>
+				<td><input type="text" class="form-control" ng-model="list.name"></td>
+				<td><input type="text" class="form-control" ng-model="list.source"></td>
+				<td><input type="text" class="form-control" ng-model="list.destination"></td>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<div class="panel panel-default">
+		<div class="panel-heading">linked files</div>
+		<table class="table">
+			<thead>
+				<th>file</th>
+				<th>optional name</th>
+				<th>functions</th>
+			</thead>
+			<tr>
+				<td><input type="text" class="form-control" ng-model="newFile.path"></td>
+				<td><input type="text" class="form-control" ng-model="newFile.name"></td>
+				<td>
+					<div class="btn-group">
+						<button type="button" class="btn btn-info" ng-click="clear()"><i class="glyphicon glyphicon-repeat"></i></button>
+						<button type="button" class="btn btn-success" ng-click="add()"><i class="glyphicon glyphicon-ok"></i></button>
+					</div>
+				</td>
+			</tr>
+			<tr ng-repeat="file in list.files">
+				<td>{{file.path}}</td>
+				<td>{{file.name}}</td>
+				<td></td>
+			</tr>
+		</table>
+	</div>
+</div>
+<div class="modal-footer">
+	<button class="btn btn-success" ng-click="ok()"><i class="glyphicon glyphicon-ok"></i> add</button>
+	<button class="btn btn-warning" ng-click="cancel()"><i class="glyphicon glyphicon-remove"></i> cancel</button>
+</div>

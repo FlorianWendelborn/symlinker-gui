@@ -1,0 +1,51 @@
+<div class="jumbotron" ng-show="!settings.listsDismissInformation">
+	<h1>Symlinker lists</h1>
+	<p>allow you to link some files or folders of one source-folder into a destination-folder.</p>
+	<p><button class="btn btn-success" ng-click="dismissInfo()">Okay, I got it.</button></p>
+</div>
+
+<button class="btn btn-success" ng-click="add()">new list</button>
+<br>
+<br>
+<accordion close-others="true">
+	<accordion-group ng-repeat="list in lists">
+		<accordion-heading>
+			{{list.name}}
+			<span class="pull-right">{{list.source}} &rarr; {{list.destination}}</span>
+		</accordion-heading>
+		<div class="btn-group">
+			<button type="button" class="btn btn-success" ng-click="run(list)"><i class="glyphicon glyphicon-play"></i> run</button>
+			<button type="button" class="btn btn-warning" ng-click="edit(list)"><i class="glyphicon glyphicon-pencil"></i> edit</button>
+			<button type="button" class="btn btn-danger" ng-click="delete(list)"><i class="glyphicon glyphicon-trash"></i> delete</button>
+		</div>
+		<br>
+		<br>
+		<div class="panel panel-default">
+			<div class="panel-heading">general information</div>
+			<table class="table">
+				<thead>
+					<th>source</th>
+					<th>destination</th>
+				</thead>
+				<tr>
+					<td>{{list.source}}</td>
+					<td>{{list.destination}}</td>
+				</tr>
+			</table>
+		</div>
+		<br>
+		<div class="panel panel-default">
+			<div class="panel-heading">linked files</div>
+			<table class="table">
+				<thead>
+					<th>file</th>
+					<th>optional name</th>
+				</thead>
+				<tr ng-repeat="file in list.files">
+					<td>{{file.path}}</td>
+					<td>{{file.name}}</td>
+				</tr>
+			</table>
+		</div>
+	</accordion-group>
+</accordion>
