@@ -39,7 +39,12 @@
 			<tr ng-repeat="file in list.files">
 				<td>{{file.path}}</td>
 				<td>{{file.name}}</td>
-				<td></td>
+				<td>
+					<div class="btn-group">
+						<button type="button" class="btn btn-warning" ng-click="edit($index)"><i class="glyphicon glyphicon-pencil"></i></button>
+						<button type="button" class="btn btn-danger" ng-click="delete($index)"><i class="glyphicon glyphicon-trash"></i></button>
+					</div>
+				</td>
 			</tr>
 		</table>
 	</div>

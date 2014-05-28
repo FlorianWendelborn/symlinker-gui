@@ -3,6 +3,7 @@
 	<p>allow you to link a file to another location.</p>
 	<p><button class="btn btn-success" ng-click="dismissInfo()">Okay, I got it.</button></p>
 </div>
+<alert ng-show="result" type="{{result.type}}" close="closeResult()">{{result.message}}</alert>
 <table class="table">
 	<thead>
 		<tr>
@@ -39,8 +40,8 @@
 		<td ng-show="editLink._id == link._id"><input type="text" class="form-control" ng-model="editLink.destination"></td>
 		<td ng-show="editLink._id == link._id">
 			<div class="btn-group">
-				<button type="button" class="btn btn-success" ng-click="update(link)"><i class="glyphicon glyphicon-ok"></i></button>
-				<button type="button" class="btn btn-warning" ng-click="edit(link)"><i class="glyphicon glyphicon-remove"></i></button>
+				<button type="button" class="btn btn-success" ng-click="update()"><i class="glyphicon glyphicon-ok"></i></button>
+				<button type="button" class="btn btn-danger" ng-click="edit(link)"><i class="glyphicon glyphicon-remove"></i></button>
 			</div>
 		</td>
 	</tr>

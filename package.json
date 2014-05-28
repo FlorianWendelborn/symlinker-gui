@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/FlorianWendelborn/symlinker-gui",
   "window": {
-    "icon": "icon.png",
+    "icon": "png/icon.png",
     "title": "symlinker",
     "toolbar": false,
     "height": 600,

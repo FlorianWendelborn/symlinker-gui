@@ -2,7 +2,7 @@ var path = require('nw.gui').App.dataPath;
 
 /*--------------------------------------------------[symlinker]--------------------------------------------------*/
 
-var symlinker; // #todo
+var symlinker = require('../symlinker');
 
 /*--------------------------------------------------[nedb]--------------------------------------------------*/
 
@@ -44,7 +44,23 @@ var app = angular.module('app', ['ngRoute','ui.bootstrap']).config(function ($ro
 });
 
 app.run(function($rootScope, $location, NeDBService) {
-	NeDBService.getSettings($rootScope);
+	db.settings.count({}, function (err, count) {
+		if (!count) {
+			db.settings.insert({
+				type: 'general',
+				recreateSymbolicLinks: true
+			}, function (err, data) {
+				if (!err) {
+					console.log('inserted basic settings');
+					NeDBService.getSettings($rootScope);
+				} else {
+					console.error(err);
+				}
+			});
+		} else {
+			NeDBService.getSettings($rootScope);
+		}
+	});
 	$rootScope.$on( "$routeChangeStart", function(event, next, current) {
 		$rootScope.currentPath = next.$$route.originalPath;
 	});
@@ -99,20 +115,17 @@ app.service('NeDBService', function () {
 	this.deleteList = function (id, callback) {
 		db.lists.remove({_id: id}, callback);
 	}
+	this.updateList = function (list, callback) {
+		db.lists.update({_id: list._id}, {
+			name: list.name,
+			source: list.source,
+			destination: list.destination,
+			files: list.files
+		}, callback);
+	}
 
 	// settings
 	this.getSettings = function ($scope) {
-		db.settings.count({}, function (err, count) {
-			if (!count) db.settings.insert({
-				type: 'general'
-			}, function (err, data) {
-				if (!err) {
-					console.log('inserted basic settings');
-				} else {
-					console.error(err);
-				}
-			});
-		});
 		db.settings.findOne({type: 'general'}, function (err, data) {
 			if (!err) {
 				$scope.$apply(function () {
@@ -151,10 +164,22 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 	};
 
 	$scope.run = function (link) {
-		console.log('#todo - run query')
+		symlinker.basic(link.source, link.destination, {
+			recreateSymbolicLinks: $scope.settings.recreateSymbolicLinks
+		}, function (err, successful) {
+			if (err) {
+				console.error(err);
+			} else {
+				$scope.result = {
+					type: 'success',
+					message: 'successfully created symbolic link'
+				}
+				console.log('successfully created symbolic link');
+			}
+		});
 	}
 
-	$scope.update = function (link) {
+	$scope.update = function () {
 		NeDBService.updateLink($scope.editLink, function (err, data) {
 			if (!err) {
 				NeDBService.getLinks($scope);
@@ -197,6 +222,10 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 		});
 	}
 
+	$scope.closeResult = function () {
+		delete($scope.result);
+	}
+
 	$scope.dismissInfo = function () {
 		$rootScope.settings.linksDismissInformation = true;
 		NeDBService.updateSettings($rootScope.settings);
@@ -220,6 +249,11 @@ var LinksDeleteModalController = function ($scope, $modalInstance, link) {
 app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBService) {
 	
 	$scope.newList;
+
+	$scope.newFile = {};
+
+	$scope.editList;
+	$scope.editingFile;
 
 	NeDBService.getLists($scope);
 
@@ -246,15 +280,82 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 		$scope.newList = null;
 	}
 
-	$scope.run = function (list) {
-		// #todo
+	$scope.run = function (index) {
+		var list = $scope.lists[index];
+
+		symlinker.advanced(list, {
+			recreateSymbolicLinks: $scope.settings.recreateSymbolicLinks
+		}, function (err, data) {
+			console.log(err, data);
+		});
 	}
 
-	$scope.edit = function (list) {
-		// #todo
+	$scope.edit = function (index) {
+		var list = $scope.lists[index];
+
+		if (!$scope.editList || $scope.editList._id != list._id) { // start edit
+			$scope.editList = list;
+		} else { // stop edit
+			NeDBService.getLists($scope);
+			$scope.editList = null;
+			$scope.editedFile = null;
+		}
 	}
 
-	$scope.delete = function (list) {
+	$scope.editFile = function (index) {
+		var file = $scope.editList.files[index];
+
+		if (!file.editing) { // start edit
+			$scope.editedFile = file;
+			$scope.editList.files[index].editing = true;
+		} else { // stop edit
+			$scope.editedFile = null;
+			$scope.editList.files[index].editing = false;
+		}
+	}
+
+	$scope.updateFile = function (index) {
+		if ($scope.editedFile.editing) {
+			$scope.editedFile.editing = null;
+		}
+		$scope.editList.files[index] = $scope.editedFile;
+		$scope.editedFile = null;
+	}
+
+	$scope.deleteFile = function (index) {
+		$scope.editList.files.splice(index, 1);
+	}
+
+	$scope.editClearFile = function () {
+		$scope.newFile = {}
+	}
+
+	$scope.editAddFile = function () {
+		if (($scope.newFile.name && $scope.newFile.name != '') || ($scope.newFile.path && $scope.newFile.path != '')) {
+			$scope.editList.files.push($scope.newFile);
+			$scope.newFile = {}
+		}
+	}
+
+	$scope.update = function () {
+		var list = $scope.editList;
+		for (var i = 0; i < list.files.length; i++) {
+			delete(list.files[i].$$hashKey);
+		}
+		NeDBService.updateList(list, function (err, data) {
+			if (!err) {
+				NeDBService.getLists($scope);
+				// #todo - prevent accordion reset
+				$scope.editList = null;
+			} else {
+				console.error(err);
+			}
+		});
+	}
+
+	$scope.delete = function (index) {
+		var list = $scope.lists[index];
+
 		var modalInstance = $modal.open({
 			templateUrl: 'html/lists/delete.html',
 			controller: ListsDeleteModalController,
@@ -286,6 +387,8 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 
 var ListsAddModalController = function ($scope, $modalInstance) {
 	
+	$scope.editing;
+
 	$scope.list = {
 		files: []
 	}
@@ -304,8 +407,16 @@ var ListsAddModalController = function ($scope, $modalInstance) {
 		$scope.newFile = {};
 	}
 
+	$scope.edit = function (index) {
+		// #todo
+	}
+
+	$scope.delete = function (index) {
+		$scope.list.files.splice(index, 1);
+	}
+
 	$scope.add = function () {
-		if ($scope.newFile.name && $scope.newFile.path && $scope.newFile.name != '' && $scope.newFile.path != '') {
+		if (($scope.newFile.name && $scope.newFile.name != '') || ($scope.newFile.path && $scope.newFile.path != '')) {
 			$scope.list.files.push($scope.newFile);
 			$scope.newFile = {}
 		}
@@ -340,6 +451,11 @@ app.controller('SettingsController', function ($scope, $rootScope, NeDBService) 
 
 	$scope.delete = function (key) {
 		delete ($rootScope.settings[key]);
+		NeDBService.updateSettings($rootScope.settings);
+	}
+
+	$scope.dismissInfo = function () {
+		$rootScope.settings.settingsDismissInformation = true;
 		NeDBService.updateSettings($rootScope.settings);
 	}
 });

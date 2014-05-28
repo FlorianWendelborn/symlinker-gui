@@ -4,19 +4,24 @@
 	<p><button class="btn btn-success" ng-click="dismissInfo()">Okay, I got it.</button></p>
 </div>
 
-<button class="btn btn-success" ng-click="add()">new list</button>
+<button style="margin-left: 20px;" class="btn btn-success" ng-click="add()">new list</button>
 <br>
 <br>
 <accordion close-others="true">
 	<accordion-group ng-repeat="list in lists">
 		<accordion-heading>
-			{{list.name}}
-			<span class="pull-right">{{list.source}} &rarr; {{list.destination}}</span>
+			<span ng-show="editList._id != list._id">{{list.name}}</span>
+			<span ng-show="editList._id != list._id" class="pull-right">{{list.source}} &#8644; {{list.destination}}</span>
+			<input ng-show="editList._id == list._id" type="text" class="form-control" ng-model="editList.name">
 		</accordion-heading>
-		<div class="btn-group">
-			<button type="button" class="btn btn-success" ng-click="run(list)"><i class="glyphicon glyphicon-play"></i> run</button>
-			<button type="button" class="btn btn-warning" ng-click="edit(list)"><i class="glyphicon glyphicon-pencil"></i> edit</button>
-			<button type="button" class="btn btn-danger" ng-click="delete(list)"><i class="glyphicon glyphicon-trash"></i> delete</button>
+		<div class="btn-group" ng-show="editList._id != list._id">
+			<button type="button" class="btn btn-success" ng-click="run($index)"><i class="glyphicon glyphicon-play"></i> run</button>
+			<button type="button" class="btn btn-warning" ng-click="edit($index)"><i class="glyphicon glyphicon-pencil"></i> edit</button>
+			<button type="button" class="btn btn-danger" ng-click="delete($index)"><i class="glyphicon glyphicon-trash"></i> delete</button>
+		</div>
+		<div class="btn-group" ng-show="editList._id == list._id">
+			<button type="button" class="btn btn-success" ng-click="update()"><i class="glyphicon glyphicon-ok"></i> update</button>
+			<button type="button" class="btn btn-danger" ng-click="edit($index)"><i class="glyphicon glyphicon-remove"></i> cancel</button>
 		</div>
 		<br>
 		<br>
@@ -27,16 +32,20 @@
 					<th>source</th>
 					<th>destination</th>
 				</thead>
-				<tr>
+				<tr ng-show="editList._id != list._id">
 					<td>{{list.source}}</td>
 					<td>{{list.destination}}</td>
+				</tr>
+				<tr ng-show="editList._id == list._id">
+					<td><input type="text" class="form-control" ng-model="editList.source"></td>
+					<td><input type="text" class="form-control" ng-model="editList.destination"></td>
 				</tr>
 			</table>
 		</div>
 		<br>
 		<div class="panel panel-default">
 			<div class="panel-heading">linked files</div>
-			<table class="table">
+			<table class="table" ng-show="editList._id != list._id">
 				<thead>
 					<th>file</th>
 					<th>optional name</th>
@@ -44,6 +53,41 @@
 				<tr ng-repeat="file in list.files">
 					<td>{{file.path}}</td>
 					<td>{{file.name}}</td>
+				</tr>
+			</table>
+			<table class="table" ng-show="editList._id == list._id">
+				<thead>
+					<th>file</th>
+					<th>optional name</th>
+					<th>functions</th>
+				</thead>
+				<tr>
+					<td><input type="text" class="form-control" ng-model="newFile.path"></td>
+					<td><input type="text" class="form-control" ng-model="newFile.name"></td>
+					<td>
+						<div class="btn-group">
+							<button type="button" class="btn btn-info" ng-click="editClearFile()"><i class="glyphicon glyphicon-repeat"></i></button>
+							<button type="button" class="btn btn-success" ng-click="editAddFile()"><i class="glyphicon glyphicon-ok"></i></button>
+						</div>
+					</td>
+				</tr>
+				<tr ng-repeat="file in editList.files">
+					<td ng-show="!file.editing">{{file.path}}</td>
+					<td ng-show="!file.editing">{{file.name}}</td>
+					<td ng-show="!file.editing">
+						<div class="btn-group">
+							<button type="button" class="btn btn-warning" ng-click="editFile($index)"><i class="glyphicon glyphicon-pencil"></i></button>
+							<button type="button" class="btn btn-danger" ng-click="deleteFile($index)"><i class="glyphicon glyphicon-trash"></i></button>
+						</div>
+					</td>
+					<td ng-show="file.editing"><input type="text" class="form-control" ng-model="editedFile.path"></td>
+					<td ng-show="file.editing"><input type="text" class="form-control" ng-model="editedFile.name"></td>
+					<td ng-show="file.editing">
+						<div class="btn-group">
+							<button type="button" class="btn btn-success" ng-click="updateFile($index)"><i class="glyphicon glyphicon-ok"></i></button>
+							<button type="button" class="btn btn-danger" ng-click="editFile($index)"><i class="glyphicon glyphicon-remove"></i></button>
+						</div>
+					</td>
 				</tr>
 			</table>
 		</div>
