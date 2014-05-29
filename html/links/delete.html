@@ -18,6 +18,17 @@
 	</table>
 </div>
 <div class="modal-footer">
-	<button class="btn btn-warning" ng-click="cancel()"><i class="glyphicon glyphicon-remove"></i> cancel</button>
-	<button class="btn btn-danger" ng-click="ok()"><i class="glyphicon glyphicon-trash"></i> delete</button>
+	<div class="btn-group">
+		<button class="btn btn-warning" ng-click="cancel()"><i class="glyphicon glyphicon-remove"></i> cancel</button>
+	</div>
+	<div class="btn-group" dropdown>
+		<button type="button" class="btn btn-danger dropdown-toggle" ng-disabled="disabled">
+			<i class="glyphicon glyphicon-trash"></i> delete <span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu pull-right" style="text-align: left;" role="menu">
+			<li><a ng-click="ok('unlink');"><i class="glyphicon glyphicon-link"></i> just unlink</a></li>
+			<li><a ng-click="ok('both');"><i class="glyphicon glyphicon-trash"></i> unlink and remove</a></li>
+			<li><a ng-click="ok('remove');"><i class="glyphicon glyphicon-remove"></i> just remove</a></li>
+		</ul>
+	</div>
 </div>

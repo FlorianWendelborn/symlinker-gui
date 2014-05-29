@@ -48,7 +48,8 @@ app.run(function($rootScope, $location, NeDBService) {
 		if (!count) {
 			db.settings.insert({
 				type: 'general',
-				recreateSymbolicLinks: true
+				recreateSymbolicLinks: true,
+				ignoreMissingSymbolicLinks: true
 			}, function (err, data) {
 				if (!err) {
 					console.log('inserted basic settings');
@@ -209,14 +210,40 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 			}
 		});
 
-		modalInstance.result.then(function () { // ok
-			NeDBService.deleteLink(link._id, function (err, data) {
-				if (!err) {
-					NeDBService.getLinks($scope);
-				} else {
-					console.error(err);
-				}
-			});
+		modalInstance.result.then(function (action) { // ok
+			switch (action) {
+				case 'unlink':
+					symlinker.removeBasic(link.destination, function (err, data) {
+						if (!err) {
+
+						} else {
+							console.error(err); // #todo
+						}
+					});
+				break;
+				case 'both':
+					symlinker.removeBasic(link.destination, function (err, data) {
+						console.log(err, data); // #todo
+					});
+					NeDBService.deleteLink(link._id, function (err, data) {
+						if (!err) {
+							NeDBService.getLinks($scope);
+						} else {
+							console.error(err); // #todo
+						}
+					});
+				break;
+				case 'remove':
+					NeDBService.deleteLink(link._id, function (err, data) {
+						if (!err) {
+							NeDBService.getLinks($scope);
+						} else {
+							console.error(err); // #todo
+						}
+					});
+				break;
+				default: console.error('LinksController: unknown modal action: ' + action);
+			}
 		}, function () { // cancel
 
 		});
@@ -235,8 +262,8 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 var LinksDeleteModalController = function ($scope, $modalInstance, link) {
 	$scope.link = link;
 
-	$scope.ok = function () {
-		$modalInstance.close();
+	$scope.ok = function (action) {
+		$modalInstance.close(action);
 	};
 
 	$scope.cancel = function () {
@@ -366,14 +393,48 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 			}
 		});
 
-		modalInstance.result.then(function () { // ok
-			NeDBService.deleteList(list._id, function (err, data) {
-				if (!err) {
-					NeDBService.getLists($scope);
-				} else {
-					console.error(err);
-				}
-			});
+		modalInstance.result.then(function (action) { // ok
+			switch (action) {
+				case 'unlink':
+					symlinker.removeAdvanced(list, {
+						ignoreMissingSymbolicLinks: $scope.settings.ignoreMissingSymbolicLinks
+					}, function (err, data) {
+						if (!err) {
+							console.log('successfully unlinked')
+						} else {
+							console.error(err); // #todo
+						}
+					});
+				break;
+				case 'both':
+					symlinker.removeAdvanced(list, {
+						ignoreMissingSymbolicLinks: $scope.settings.ignoreMissingSymbolicLinks
+					}, function (err, data) {
+						if (!err) {
+							console.log('successfully unlinked')
+						} else {
+							console.error(err); // #todo
+						}
+					});
+					NeDBService.deleteList(list._id, function (err, data) {
+						if (!err) {
+							NeDBService.getLists($scope);
+						} else {
+							console.error(err); // #todo
+						}
+					});
+				break;
+				case 'remove':
+					NeDBService.deleteList(list._id, function (err, data) {
+						if (!err) {
+							NeDBService.getLists($scope);
+						} else {
+							console.error(err); // #todo
+						}
+					});
+				break;
+				default: console.error('LinksController: unknown modal action: ' + action);
+			}
 		}, function () { // cancel
 
 		});
@@ -395,8 +456,8 @@ var ListsAddModalController = function ($scope, $modalInstance) {
 
 	$scope.newFile = {};
 
-	$scope.ok = function () {
-		$modalInstance.close($scope.list);
+	$scope.ok = function (action) {
+		$modalInstance.close(action);
 	};
 
 	$scope.cancel = function () {
@@ -426,8 +487,8 @@ var ListsAddModalController = function ($scope, $modalInstance) {
 var ListsDeleteModalController = function ($scope, $modalInstance, list) {
 	$scope.list = list;
 
-	$scope.ok = function () {
-		$modalInstance.close();
+	$scope.ok = function (action) {
+		$modalInstance.close(action);
 	};
 
 	$scope.cancel = function () {
