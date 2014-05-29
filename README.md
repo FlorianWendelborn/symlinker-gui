@@ -7,6 +7,7 @@ Graphical User Interface for [symlinker](https://github.com/FlorianWendelborn/sy
 
 ##  Requirements
 
+- [symlinker](https://github.com/FlorianWendelborn/symlinker)
 - [Angular.js 1.2.x](https://angularjs.org/)
 - [Angular-Route](https://angularjs.org/)
 - [Angular-Ui (Bootstrap)](http://angular-ui.github.io/bootstrap/)
