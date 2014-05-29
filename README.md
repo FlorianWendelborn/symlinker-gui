@@ -1,5 +1,7 @@
 # symlinker-gui
 
+![screenshot](https://github.com/FlorianWendelborn/raw/raw/master/symlinker-gui.png)
+
 ## Description
 Graphical User Interface for [symlinker](https://github.com/FlorianWendelborn/symlinker).
 

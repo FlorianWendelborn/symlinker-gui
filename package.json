@@ -25,6 +25,7 @@
     "resizable": true
   },
   "dependencies": {
-    "nedb": "~0.10.5"
+    "nedb": "~0.10.5",
+    "symlinker": "0.x"
   }
 }
