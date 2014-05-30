@@ -595,8 +595,8 @@ var ListsAddModalController = function ($scope, $modalInstance) {
 
 	$scope.newFile = {};
 
-	$scope.ok = function (action) {
-		$modalInstance.close(action);
+	$scope.ok = function () {
+		$modalInstance.close($scope.list);
 	};
 
 	$scope.cancel = function () {
