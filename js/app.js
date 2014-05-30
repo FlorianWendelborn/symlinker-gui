@@ -1,6 +1,7 @@
 var gui = require('nw.gui');
 var appPath = gui.App.dataPath;
 var path = require('path');
+var fs = require('fs');
 
 /*--------------------------------------------------[symlinker]--------------------------------------------------*/
 
@@ -48,9 +49,9 @@ var app = angular.module('app', ['ngRoute','ui.bootstrap']).config(function ($ro
 // folder dialog
 var folderDialog, folderCallback;
 
-function openFolder (directory, callback) {
-	if (directory) {
-		folderDialog.setAttribute('nwworkingdir', directory);
+function openFolder (options, callback) {
+	if (options.path) {
+		folderDialog.setAttribute('nwworkingdir', path.dirname(options.path));
 	} else {
 		folderDialog.removeAttribute('nwworkingdir');
 	}
@@ -67,11 +68,16 @@ function openFolder (directory, callback) {
 // file dialog
 var fileDialog, fileCallback;
 
-function openFile (filename, callback) {
-	if (filename) {
-		fileDialog.setAttribute('nwworkingdir', path.dirname(filename));
+function openFile (options, callback) {
+	if (options.path) {
+		fileDialog.setAttribute('nwworkingdir', path.dirname(options.path));
 	} else {
 		fileDialog.removeAttribute('nwworkingdir');
+	}
+	if (options.accept) {
+		fileDialog.setAttribute('accept', options.accept);
+	} else {
+		fileDialog.removeAttribute('accept');
 	}
 
 	fileCallback = callback;
@@ -81,7 +87,32 @@ function openFile (filename, callback) {
 		fileDialog.click();
 	},0);
 }
-// end folder dialog
+// end file dialog
+
+// fileSave dialog
+var fileSaveDialog, fileSaveCallback;
+
+function saveFile (options, callback) {
+	if (options.path) {
+		fileSaveDialog.setAttribute('nwworkingdir', path.dirname(options.path));
+	} else {
+		fileSaveDialog.removeAttribute('nwworkingdir');
+	}
+	if (options.accept) {
+		fileSaveDialog.setAttribute('accept', options.accept);
+	} else {
+		fileSaveDialog.removeAttribute('accept');
+	}
+	fileSaveDialog.setAttribute('nwsaveas', options.filename);
+
+	fileSaveCallback = callback;
+
+	// fix $scope.$apply errors
+	setTimeout(function () {
+		fileSaveDialog.click();
+	},0);
+}
+// end fileSave dialog
 
 app.run(function($rootScope, $location, NeDBService) {
 	// folder dialog
@@ -99,6 +130,14 @@ app.run(function($rootScope, $location, NeDBService) {
 		fileCallback(this.value);
 	});
 	// end file dialog
+
+	// fileSave dialog
+	fileSaveDialog = document.getElementById('saveFileDialog');
+
+	fileSaveDialog.addEventListener('change', function (){
+		fileSaveCallback(this.value);
+	});
+	// end fileSave dialog
 	
 	db.settings.count({}, function (err, count) {
 		if (!count) {
@@ -211,7 +250,9 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 
 	// folder choosing
 	$scope.chooseSourceFolder = function () {
-		openFolder($scope.newLink.source, function (path) {
+		openFolder({
+			path: $scope.newLink.source
+		}, function (path) {
 			if (path) $scope.$apply(function () {
 				$scope.newLink.source = path;
 			});
@@ -219,7 +260,9 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 	}
 
 	$scope.chooseSourceFile = function () {
-		openFile($scope.newLink.source, function (path) {
+		openFile({
+			path: $scope.newLink.source
+		}, function (path) {
 			if (path) $scope.$apply(function () {
 				$scope.newLink.source = path;
 			});
@@ -231,7 +274,9 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 	}
 
 	$scope.chooseDestinationFolder = function () {
-		openFolder($scope.newLink.destination, function (path) {
+		openFolder({
+			path: $scope.newLink.destination
+		}, function (path) {
 			if (path) $scope.$apply(function () {
 				$scope.newLink.destination = path;
 			});
@@ -239,7 +284,9 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 	}
 
 	$scope.chooseDestinationFile = function () {
-		openFile($scope.newLink.destination, function (path) {
+		openFile({
+			path: $scope.newLink.destination
+		}, function (path) {
 			if (path) $scope.$apply(function () {
 				$scope.newLink.destination = path;
 			});
@@ -251,7 +298,9 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 	}
 
 	$scope.editSourceFolder = function () {
-		openFolder($scope.editLink.source, function (path) {
+		openFolder({
+			path: $scope.newLink.source
+		}, function (path) {
 			if (path) $scope.$apply(function () {
 				$scope.editLink.source = path;
 			});
@@ -259,7 +308,9 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 	}
 
 	$scope.editSourceFile = function () {
-		openFile($scope.editLink.source, function (path) {
+		openFile({
+			path: $scope.newLink.source
+		}, function (path) {
 			if (path) $scope.$apply(function () {
 				$scope.editLink.source = path;
 			});
@@ -271,14 +322,18 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 	}
 
 	$scope.editDestinationFolder = function () {
-		openFolder($scope.editLink.destination, function (path) {
+		openFolder({
+			path: $scope.newLink.destination
+		}, function (path) {
 			if (path) $scope.$apply(function () {
 				$scope.editLink.destination = path;
 			});
 		});
 	}
 	$scope.editDestinationFile = function () {
-		openFile($scope.editLink.destination, function (path) {
+		openFile({
+			path: $scope.newLink.destination
+		}, function (path) {
 			if (path) $scope.$apply(function () {
 				$scope.editLink.destination = path;
 			});
@@ -423,6 +478,7 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 
 	NeDBService.getLists($scope);
 
+	// main
 	$scope.add = function () {
 		var modalInstance = $modal.open({
 			templateUrl: 'html/lists/add.html',
@@ -442,6 +498,41 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 		});
 	}
 
+	$scope.import = function () {
+		openFile({
+			accept: '.sjlist'
+		}, function (path) {
+			fs.readFile(path, function (err, data) {
+				if (!err) {
+					try {
+						var json = JSON.parse(data);
+						if (json.source || json.destination || json.files) {
+							NeDBService.addList(json, function (err, data) {
+								if (!err) {
+									NeDBService.getLists($scope);
+								} else {
+									console.error(err);
+								}
+							});
+						} else {
+							alert('invalid file');
+							console.error('invalid import file');
+						}
+					} catch (err) {
+						console.error(err);
+					}
+				} else {
+					console.error(err);
+				}
+			});
+		});
+	}
+	$scope.runAll = function () {
+		alert('#todo');
+	}
+	// end main
+
+	// per list
 	$scope.clear = function () {
 		$scope.newList = null;
 	}
@@ -501,6 +592,42 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 			$scope.editList.files.push($scope.newFile);
 			$scope.newFile = {}
 		}
+	}
+
+	$scope.unlink = function (index) {
+		var list = $scope.lists[index];
+		symlinker.removeAdvanced(list, {
+			ignoreMissingSymbolicLinks: $scope.settings.ignoreMissingSymbolicLinks
+		}, function (err, data) {
+			if (!err) {
+				console.log('successfully unlinked')
+			} else {
+				console.error(err); // #todo
+			}
+		});
+	}
+
+	$scope.export = function (index) {
+		var list = $scope.lists[index];
+		// #todo option for default location
+		saveFile({
+			filename: list.name + '.sjlist',
+			accept: '.sjlist'
+		}, function (path) {
+			fs.writeFile(path, JSON.stringify({
+				name: list.name,
+				source: list.source,
+				destination: list.destination,
+				files: list.files
+			}), function (err, data) {
+				if (!err) {
+					console.log('successfully exported file ' + path);
+				} else {
+					alert('could not export file ' + path);
+					console.error(err);
+				}
+			});
+		});
 	}
 
 	$scope.update = function () {

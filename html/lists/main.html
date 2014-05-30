@@ -4,7 +4,11 @@
 	<p><button class="btn btn-success" ng-click="dismissInfo()">Okay, I got it.</button></p>
 </div>
 
-<button style="margin-left: 20px;" class="btn btn-success" ng-click="add()">new list</button>
+<button style="margin-left: 20px;" class="btn btn-success" ng-click="runAll()"><i class="glyphicon glyphicon-play"></i> run all</button>
+<div class="btn-group">
+		<button class="btn btn-success" ng-click="add()"><i class="glyphicon glyphicon-plus"></i> new list</button>
+	<button class="btn btn-info" ng-click="import()"><i class="glyphicon glyphicon-import"></i> import</button>
+</div>
 <br>
 <br>
 <accordion close-others="true">
@@ -16,8 +20,14 @@
 		</accordion-heading>
 		<div class="btn-group" ng-show="editList._id != list._id">
 			<button type="button" class="btn btn-success" ng-click="run($index)"><i class="glyphicon glyphicon-play"></i> run</button>
+			<button type="button" class="btn btn-warning" ng-click="unlink($index)"><i class="glyphicon glyphicon-link"></i> unlink</button>
+		</div>
+		<div class="btn-group" ng-show="editList._id != list._id">
 			<button type="button" class="btn btn-warning" ng-click="edit($index)"><i class="glyphicon glyphicon-pencil"></i> edit</button>
 			<button type="button" class="btn btn-danger" ng-click="delete($index)"><i class="glyphicon glyphicon-trash"></i> delete</button>
+		</div>
+		<div class="btn-group" ng-show="editList._id != list._id">
+			<button type="button" class="btn btn-info" ng-click="export($index)"><i class="glyphicon glyphicon-export"></i> export</button>
 		</div>
 		<div class="btn-group" ng-show="editList._id == list._id">
 			<button type="button" class="btn btn-success" ng-click="update()"><i class="glyphicon glyphicon-ok"></i> update</button>
