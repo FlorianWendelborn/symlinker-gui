@@ -1,4 +1,6 @@
-var path = require('nw.gui').App.dataPath;
+var gui = require('nw.gui');
+var appPath = gui.App.dataPath;
+var path = require('path');
 
 /*--------------------------------------------------[symlinker]--------------------------------------------------*/
 
@@ -8,9 +10,9 @@ var symlinker = require('../symlinker');
 
 var Datastore = require('nedb')
   , db = {
-		links: new Datastore({ filename: path + '/links.nedb' }),
-		lists: new Datastore({ filename: path + '/lists.nedb' }),
-		settings: new Datastore({ filename: path + '/settings.nedb' })
+		links: new Datastore({ filename: appPath + '/links.nedb' }),
+		lists: new Datastore({ filename: appPath + '/lists.nedb' }),
+		settings: new Datastore({ filename: appPath + '/settings.nedb' })
 	}
 
 for (var i in db) {
@@ -43,7 +45,61 @@ var app = angular.module('app', ['ngRoute','ui.bootstrap']).config(function ($ro
 		});
 });
 
+// folder dialog
+var folderDialog, folderCallback;
+
+function openFolder (directory, callback) {
+	if (directory) {
+		folderDialog.setAttribute('nwworkingdir', directory);
+	} else {
+		folderDialog.removeAttribute('nwworkingdir');
+	}
+
+	folderCallback = callback;
+	
+	// fix $scope.$apply errors
+	setTimeout(function () {
+		folderDialog.click();
+	},0);
+}
+// end folder dialog
+
+// file dialog
+var fileDialog, fileCallback;
+
+function openFile (filename, callback) {
+	if (filename) {
+		fileDialog.setAttribute('nwworkingdir', path.dirname(filename));
+	} else {
+		fileDialog.removeAttribute('nwworkingdir');
+	}
+
+	fileCallback = callback;
+
+	// fix $scope.$apply errors
+	setTimeout(function () {
+		fileDialog.click();
+	},0);
+}
+// end folder dialog
+
 app.run(function($rootScope, $location, NeDBService) {
+	// folder dialog
+	folderDialog = document.getElementById('folderDialog');
+
+	folderDialog.addEventListener('change', function (){
+		folderCallback(this.value);
+	});
+	// end folder dialog
+	
+	// file dialog
+	fileDialog = document.getElementById('fileDialog');
+
+	fileDialog.addEventListener('change', function (){
+		fileCallback(this.value);
+	});
+	// end file dialog
+	
 	db.settings.count({}, function (err, count) {
 		if (!count) {
 			db.settings.insert({
@@ -147,14 +203,97 @@ app.service('NeDBService', function () {
 /*--------------------------------------------------[controllers]--------------------------------------------------*/
 app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBService) {
 
+	// variables
 	$scope.editLink;
-	$scope.newLink;
+	$scope.newLink = {};
 	$scope.links;
+	// end variables
+
+	// folder choosing
+	$scope.chooseSourceFolder = function () {
+		openFolder($scope.newLink.source, function (path) {
+			if (path) $scope.$apply(function () {
+				$scope.newLink.source = path;
+			});
+		});
+	}
+
+	$scope.chooseSourceFile = function () {
+		openFile($scope.newLink.source, function (path) {
+			if (path) $scope.$apply(function () {
+				$scope.newLink.source = path;
+			});
+		});
+	}
+
+	$scope.showSource = function () {
+		gui.Shell.showItemInFolder($scope.newLink.source);
+	}
+
+	$scope.chooseDestinationFolder = function () {
+		openFolder($scope.newLink.destination, function (path) {
+			if (path) $scope.$apply(function () {
+				$scope.newLink.destination = path;
+			});
+		});
+	}
+
+	$scope.chooseDestinationFile = function () {
+		openFile($scope.newLink.destination, function (path) {
+			if (path) $scope.$apply(function () {
+				$scope.newLink.destination = path;
+			});
+		});
+	}
+
+	$scope.showDestination = function () {
+		gui.Shell.showItemInFolder($scope.newLink.destination);
+	}
+
+	$scope.editSourceFolder = function () {
+		openFolder($scope.editLink.source, function (path) {
+			if (path) $scope.$apply(function () {
+				$scope.editLink.source = path;
+			});
+		});
+	}
+
+	$scope.editSourceFile = function () {
+		openFile($scope.editLink.source, function (path) {
+			if (path) $scope.$apply(function () {
+				$scope.editLink.source = path;
+			});
+		});
+	}
+
+	$scope.showEditSource = function () {
+		gui.Shell.showItemInFolder($scope.editLink.source);
+	}
+
+	$scope.editDestinationFolder = function () {
+		openFolder($scope.editLink.destination, function (path) {
+			if (path) $scope.$apply(function () {
+				$scope.editLink.destination = path;
+			});
+		});
+	}
+	$scope.editDestinationFile = function () {
+		openFile($scope.editLink.destination, function (path) {
+			if (path) $scope.$apply(function () {
+				$scope.editLink.destination = path;
+			});
+		});
+	}
+
+	$scope.showEditDestination = function () {
+		gui.Shell.showItemInFolder($scope.editLink.destination);
+	}
+	// end folder choosing
 
 	NeDBService.getLinks($scope);
 
 	$scope.clear = function () {
-		$scope.newLink = null;
+		$scope.newLink = {};
 	}
 
 	$scope.add = function () {

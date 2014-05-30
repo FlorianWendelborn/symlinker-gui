@@ -15,8 +15,38 @@
 	</thead>
 	<tr>
 		<td><input type="text" class="form-control" ng-model="newLink.name"></td>
-		<td><input type="text" class="form-control" ng-model="newLink.source"></td>
-		<td><input type="text" class="form-control" ng-model="newLink.destination"></td>
+		<td>
+			<div class="input-group" style="width: 100%;">
+				<input type="text" class="form-control" ng-model="newLink.source">
+				<div class="input-group-btn" style="width: 1px;" dropdown>
+					<button type="button" class="btn btn-default dropdown-toggle">
+						open <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu pull-right" style="text-align: left;">
+						<li><a ng-click="chooseSourceFile()"><i class="glyphicon glyphicon-file"></i> &nbsp;file</a></li>
+						<li><a ng-click="chooseSourceFolder()"><i class="glyphicon glyphicon-folder-open"></i> &nbsp;folder</a></li>
+						<li class="divider"></li>
+						<li><a ng-click="showSource()"><i class="glyphicon glyphicon-search"></i> &nbsp;in file manager</a></li>
+					</ul>
+				</div>
+			</div>
+		</td>
+		<td>
+			<div class="input-group" style="width: 100%;">
+				<input type="text" class="form-control" ng-model="newLink.destination">
+				<div class="input-group-btn" style="width: 1px;" dropdown>
+					<button type="button" class="btn btn-default dropdown-toggle">
+						open <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu pull-right" style="text-align: left;">
+						<li><a ng-click="chooseDestinationFile()"><i class="glyphicon glyphicon-file"></i> &nbsp;file</a></li>
+						<li><a ng-click="chooseDestinationFolder()"><i class="glyphicon glyphicon-folder-open"></i> &nbsp;folder</a></li>
+						<li class="divider"></li>
+						<li><a ng-click="showDestination()"><i class="glyphicon glyphicon-search"></i> &nbsp;in file manager</a></li>
+					</ul>
+				</div>
+			</div>
+		</td>
 		<td>
 			<div class="btn-group">
 				<button type="button" class="btn btn-primary" ng-click="clear()"><i class="glyphicon glyphicon-repeat"></i></button>
@@ -36,8 +66,38 @@
 			</div>
 		</td>
 		<td ng-show="editLink._id == link._id"><input type="text" class="form-control" ng-model="editLink.name"></td>
-		<td ng-show="editLink._id == link._id"><input type="text" class="form-control" ng-model="editLink.source"></td>
-		<td ng-show="editLink._id == link._id"><input type="text" class="form-control" ng-model="editLink.destination"></td>
+		<td ng-show="editLink._id == link._id">
+			<div class="input-group" style="width: 100%;">
+				<input type="text" class="form-control" ng-model="editLink.source">
+				<div class="input-group-btn" style="width: 1px;" dropdown>
+					<button type="button" class="btn btn-default dropdown-toggle">
+						open <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu pull-right" style="text-align: left;">
+						<li><a ng-click="editSourceFile()"><i class="glyphicon glyphicon-file"></i> &nbsp;file</a></li>
+						<li><a ng-click="editSourceFolder()"><i class="glyphicon glyphicon-folder-open"></i> &nbsp;folder</a></li>
+						<li class="divider"></li>
+						<li><a ng-click="showEditSource()"><i class="glyphicon glyphicon-search"></i> &nbsp;in file manager</a></li>
+					</ul>
+				</div>
+			</div>
+		</td>
+		<td ng-show="editLink._id == link._id">
+			<div class="input-group" style="width: 100%;">
+				<input type="text" class="form-control" ng-model="editLink.destination">
+				<div class="input-group-btn" style="width: 1px;" dropdown>
+					<button type="button" class="btn btn-default dropdown-toggle">
+						open <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu pull-right" style="text-align: left;">
+						<li><a ng-click="editDestinationFile()"><i class="glyphicon glyphicon-file"></i> &nbsp;file</a></li>
+						<li><a ng-click="editDestinationFolder()"><i class="glyphicon glyphicon-folder-open"></i> &nbsp;folder</a></li>
+						<li class="divider"></li>
+						<li><a ng-click="showEditDestination()"><i class="glyphicon glyphicon-search"></i> &nbsp;in file manager</a></li>
+					</ul>
+				</div>
+			</div>
+		</td>
 		<td ng-show="editLink._id == link._id">
 			<div class="btn-group">
 				<button type="button" class="btn btn-success" ng-click="update()"><i class="glyphicon glyphicon-ok"></i></button>
