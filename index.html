@@ -6,7 +6,6 @@
 	<script src="./lib/angular.js" type="text/javascript"></script>
 	<script src="./lib/ui-bootstrap.js" type="text/javascript"></script>
 	<script src="./lib/angular-route.js" type="text/javascript"></script>
-	<script src="./lib/angular-resource.js" type="text/javascript"></script>
 
 	<script src="./js/app.js" type="text/javascript"></script>
 	
@@ -14,17 +13,17 @@
 
 	<link rel="icon" href="./png/icon.png" type="image/png">
 </head>
-<body>
+<body style="padding-top: 70px;">
 	<input type="file" id="folderDialog" class="hidden" nwdirectory />
 	<input type="file" id="fileDialog" class="hidden" />
 	<input type="file" id="saveFileDialog" class="hidden" nwsaveas />
-	<nav class="navbar navbar-default" role="navigation">
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 		<div class="container-fluid">
 			<a class="navbar-brand" href="#">symlinker</a>
 
 			<ul class="nav navbar-nav">
-				<li ng-class="{active: currentPath == '/links'}"><a href="#/links"><i class="glyphicon glyphicon-link"></i> links <span class="badge">{{links.length}}</span></a></li>
-				<li ng-class="{active: currentPath == '/lists'}"><a href="#/lists"><i class="glyphicon glyphicon-list-alt"></i> lists <span class="badge">{{lists.length}}</span></a></li>
+				<li ng-class="{active: currentPath == '/links'}"><a href="#/links"><i class="glyphicon glyphicon-link"></i> links</a></li>
+				<li ng-class="{active: currentPath == '/lists'}"><a href="#/lists"><i class="glyphicon glyphicon-list-alt"></i> lists</a></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				<li ng-class="{active: currentPath == '/settings'}"><a href="#/settings"><i class="glyphicon glyphicon-cog"></i> settings</a></li>

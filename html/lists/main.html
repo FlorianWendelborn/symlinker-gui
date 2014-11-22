@@ -10,6 +10,7 @@
 	<button class="btn btn-info" ng-click="import()"><i class="glyphicon glyphicon-import"></i> import</button>
 </div>
 <br>
+<alert ng-show="result" type="{{result.type}}" close="closeResult()">{{result.message}}</alert>
 <br>
 <accordion close-others="true">
 	<accordion-group ng-repeat="list in lists">

@@ -3,6 +3,54 @@ var appPath = gui.App.dataPath;
 var path = require('path');
 var fs = require('fs');
 
+var dirname = require('./js/util.js').dirname;
+
+var notifier = require('node-notifier');
+function notify (message) {
+	notifier.notify({
+		'title': 'symlinker',
+		'message': message,
+		'icon': path.join(dirname, '../png/icon.png')
+	});
+}
+
+var win = gui.Window.get();
+var tray;
+
+win.on('minimize', function() {
+	// hide window
+	this.hide();
+	
+	// configure tray
+	tray = new gui.Tray({
+		icon: 'png/icon.png'
+	});
+
+	tray.tooltip = 'symlinker';
+	
+	var menu = new gui.Menu();
+	menu.append(new gui.MenuItem({ label: 'run all' }));
+	menu.items[0].click = function () {
+		alert('#todo');
+	}
+	menu.append(new gui.MenuItem({ label: 'show symlinker' }));
+	menu.items[1].click = function () {
+		win.show();
+		win.focus();
+		tray.remove();
+		tray = null;
+	}
+
+	tray.menu = menu;
+
+	tray.on('click', function() {
+		win.show();
+		win.focus();
+		this.remove();
+		tray = null;
+	});
+});
+
 /*--------------------------------------------------[symlinker]--------------------------------------------------*/
 
 var symlinker = require('../symlinker');
@@ -246,6 +294,7 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 	$scope.editLink;
 	$scope.newLink = {};
 	$scope.links;
+	$scope.result;
 	// end variables
 
 	// folder choosing
@@ -362,14 +411,12 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 		symlinker.basic(link.source, link.destination, {
 			recreateSymbolicLinks: $scope.settings.recreateSymbolicLinks
 		}, function (err, successful) {
-			if (err) {
-				console.error(err);
+			if (!err) {
+				notify('Successfully created symbolic link.');
+				console.log('Successfully created symbolic link.');
 			} else {
-				$scope.result = {
-					type: 'success',
-					message: 'successfully created symbolic link'
-				}
-				console.log('successfully created symbolic link');
+				notify('Could not create symbolic link.');
+				console.error('Could not create symbolic link.', err);
 			}
 		});
 	}
@@ -409,21 +456,29 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 				case 'unlink':
 					symlinker.removeBasic(link.destination, function (err, data) {
 						if (!err) {
-
+							notify('Successfully removed symbolic link.');
+							console.log('Successfully removed symbolic link.');
 						} else {
-							console.error(err); // #todo
+							notify('Could not remove symbolic link.');
+							console.error('Could not remove symbolic link.', err);
 						}
 					});
 				break;
 				case 'both':
 					symlinker.removeBasic(link.destination, function (err, data) {
-						console.log(err, data); // #todo
+						if (!err) {
+							notify('Successfully removed symbolic link.');
+							console.log('Successfully removed symbolic link.');
+						} else {
+							notify('Could not remove symbolic link.');
+							console.error('Could not remove symbolic link.', err);
+						}
 					});
 					NeDBService.deleteLink(link._id, function (err, data) {
 						if (!err) {
 							NeDBService.getLinks($scope);
 						} else {
-							console.error(err); // #todo
+							console.error('Could not remove database entry.', err);
 						}
 					});
 				break;
@@ -432,7 +487,7 @@ app.controller('LinksController', function ($scope, $rootScope, $modal, NeDBServ
 						if (!err) {
 							NeDBService.getLinks($scope);
 						} else {
-							console.error(err); // #todo
+							console.error('Could not remove database entry.', err);
 						}
 					});
 				break;
@@ -475,6 +530,8 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 
 	$scope.editList;
 	$scope.editingFile;
+
+	$scope.result;
 
 	NeDBService.getLists($scope);
 
@@ -528,7 +585,28 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 		});
 	}
 	$scope.runAll = function () {
-		alert('#todo');
+		var total = $scope.lists.length
+		  , finished = 0;
+		for (var i = 0; i < total; i++) {
+			var list = $scope.lists[i];
+			
+			symlinker.advanced(list, {
+				recreateSymbolicLinks: $scope.settings.recreateSymbolicLinks
+			}, function (err, data) {
+				if (!err) {
+					if (++finished == total) {
+						notify('Finished running all lists.');
+						console.log('Finished running all lists.');
+					}
+				} else {
+					notify('Something went wrong running all lists.');
+					console.error('Something went wrong running all lists.', err);
+				}
+			});
+		}
+	}
+	$scope.closeResult = function () {
+		delete($scope.result);
 	}
 	// end main
 
@@ -543,7 +621,13 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 		symlinker.advanced(list, {
 			recreateSymbolicLinks: $scope.settings.recreateSymbolicLinks
 		}, function (err, data) {
-			console.log(err, data);
+			if (!err) {
+				notify('Finished running list.');
+				console.log('Finished running list.');
+			} else {
+				notify('Something went wrong running that list.');
+				console.error('Something went wrong running that list.', err);
+			}
 		});
 	}
 
@@ -600,9 +684,11 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 			ignoreMissingSymbolicLinks: $scope.settings.ignoreMissingSymbolicLinks
 		}, function (err, data) {
 			if (!err) {
+				notify('Successfully unlinked list.');
 				console.log('successfully unlinked')
 			} else {
-				console.error(err); // #todo
+				notify('Could not unlink list.');
+				console.error('Could not unlink list.', err);
 			}
 		});
 	}
@@ -666,9 +752,11 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 						ignoreMissingSymbolicLinks: $scope.settings.ignoreMissingSymbolicLinks
 					}, function (err, data) {
 						if (!err) {
-							console.log('successfully unlinked')
+							notify('Successfully unlinked list.');
+							console.log('successfully unlinked list.');
 						} else {
-							console.error(err); // #todo
+							notify('Could not unlink list.');
+							console.error('Could not unlink list.', err);
 						}
 					});
 				break;
@@ -677,16 +765,19 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 						ignoreMissingSymbolicLinks: $scope.settings.ignoreMissingSymbolicLinks
 					}, function (err, data) {
 						if (!err) {
-							console.log('successfully unlinked')
+							notify('Successfully unlinked list.');
+							console.log('successfully unlinked list.');
 						} else {
-							console.error(err); // #todo
+							notify('Could not unlink list.');
+							console.error('Could not unlink list.', err);
 						}
 					});
 					NeDBService.deleteList(list._id, function (err, data) {
 						if (!err) {
 							NeDBService.getLists($scope);
 						} else {
-							console.error(err); // #todo
+							notify('Something went wrong deleting that list.');
+							console.error('Something went wrong deleting that list.', err);
 						}
 					});
 				break;
@@ -695,7 +786,8 @@ app.controller('ListsController', function ($scope, $rootScope, $modal, NeDBServ
 						if (!err) {
 							NeDBService.getLists($scope);
 						} else {
-							console.error(err); // #todo
+							notify('Something went wrong deleting that list.');
+							console.error('Something went wrong deleting that list.', err);
 						}
 					});
 				break;

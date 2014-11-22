@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "nedb": "~0.10.5",
+    "node-notifier": "^4.0.2",
     "symlinker": "0.x"
   }
 }
