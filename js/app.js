@@ -17,7 +17,7 @@ function notify (message) {
 var win = gui.Window.get();
 var tray;
 
-win.on('minimize', function() {
+win.on('minimize', function () {
 	// hide window
 	this.hide();
 	
@@ -43,7 +43,7 @@ win.on('minimize', function() {
 
 	tray.menu = menu;
 
-	tray.on('click', function() {
+	tray.on('click', function () {
 		win.show();
 		win.focus();
 		this.remove();
